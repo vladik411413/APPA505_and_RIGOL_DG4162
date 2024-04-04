@@ -131,9 +131,9 @@ gen.ch1.on()
 gen.ch2.on()
 
 try:
-    f = open("data.txt", "w")
+    f = open("data.txt", "a")
     f.write("Vmag Vphase dBm1 dBm2 phase1 phase2 Vcc = 4.942 V Vatten = -2.9614 V\n")
-    for dBm in range(-56,0,1):
+    for dBm in range(-36,0,1):
         for phase in range(90,270,3):
             gen.ch1.ph = phase
             gen.ch1.vpp = dBm_to_Vpp(dBm)
