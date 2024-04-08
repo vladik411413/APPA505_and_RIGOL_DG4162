@@ -52,25 +52,29 @@ class Channel:
         return self._vpp
     @vpp.setter
     def vpp(self, value:float):
+        time.sleep(1)
         self._vpp = value
         self.s(f":SOURce{self.n}:VOLTage {value}")
-        
+        time.sleep(1)
     @property
     def ph(self):
         return self._ph
     @ph.setter
     def ph(self, value:float):
+        time.sleep(1)
         self._ph = value
         self.s(f":SOURce{self.n}:PHASe {value}")
         self.s(f":SOURce{self.n}:PHASe:INITiate")
-
+        time.sleep(1)
     @property
     def freq(self):
         return self._freq
     @freq.setter
     def freq(self, value:int):
+        time.sleep(1)
         self._freq = float(value)
         self.s(f":SOURce{self.n}:FREQuency {value}")
+        time.sleep(1)
           
     def s(self,command:str):
         time.sleep(0.4)
@@ -111,7 +115,12 @@ class Generator:
         time.sleep(1)
         self.ch1 = Channel(1,self.inst)
         self.ch2 = Channel(2,self.inst)
-        
+
+
+def Vph(ph):
+  return -0.0104876*ph+0.827207
+
+
 # Connect to waveform generator
 
 gen = Generator()
@@ -131,20 +140,27 @@ gen.ch1.on()
 gen.ch2.on()
 
 try:
-    f = open("data.txt", "a")
-    f.write("Vmag Vphase dBm1 dBm2 phase1 phase2 Vcc = 4.942 V Vatten = -2.9614 V\n")
-    for dBm in range(-36,0,1):
-        for phase in range(90,270,3):
-            gen.ch1.ph = phase
-            gen.ch1.vpp = dBm_to_Vpp(dBm)
+    data = open("data.txt", "r")
+    newdata = open("newdata.txt", "w")
+    lines = data.readlines()
+    for line in lines:
+        array = list(map(float, line.split()))
+        Vmag, Vphase, dBm1, dBm2, phase1, phase2 = array
+        if((abs(Vph(phase1-phase2)-Vphase)>0.2) and (dBm1>-40)):
+            print(array)
+            gen.ch1.ph = phase1
+            gen.ch1.vpp = dBm_to_Vpp(dBm1)
             line = f"{appa_mag.v()} {appa_ph.v()} {Vpp_to_dBm(gen.ch1.vpp)} {Vpp_to_dBm(gen.ch2.vpp)} {gen.ch1.ph} {gen.ch2.ph}\n"
-            f.write(line)
+            newdata.write(line)
             print(line)
+        else:
+            newdata.write(line)
     appa_mag.close()
     appa_ph.close()
     gen.ch1.off()
     gen.ch2.off()
-    f.close()
+    data.close()
+    newdata.close()
     
 
 except KeyboardInterrupt:
@@ -152,11 +168,14 @@ except KeyboardInterrupt:
     appa_ph.close()
     gen.ch1.off()
     gen.ch2.off()
-    f.close()
+    data.close()
+    newdata.close()
+
 
 except:
     appa_mag.close()
     appa_ph.close()
     gen.ch1.off()
     gen.ch2.off()
-    f.close()
+    data.close()
+    newdata.close()
