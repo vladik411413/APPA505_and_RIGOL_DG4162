@@ -121,8 +121,12 @@ def Vph(ph):
   return -0.0104876*ph+0.827207
 
 
-# Connect to waveform generator
 
+# Connect to appa multimeters
+
+appa_ph = Appa(input("Введите порт измерителя фазы в формате COMN:"))
+appa_mag = Appa(input("Введите порт измерителя амплитуды в формате COMN:"))
+# Connect to waveform generator
 gen = Generator()
 gen.ch1.ph = 180
 gen.ch2.ph = 180
@@ -130,12 +134,6 @@ gen.ch1.vpp = dBm_to_Vpp(-30)
 gen.ch2.vpp = dBm_to_Vpp(-30)
 gen.ch1.freq = 40e6
 gen.ch2.freq = 40e6
-
-# Connect to appa multimeters
-
-appa_ph = Appa(input("Введите порт измерителя фазы в формате COMN:"))
-appa_mag = Appa(input("Введите порт измерителя амплитуды в формате COMN:"))
-
 gen.ch1.on()
 gen.ch2.on()
 
